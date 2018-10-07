@@ -4418,6 +4418,8 @@ let pullRequestCounter = 0;
 let deleteEventCounter = 0;
 let commentEventCounter = 0;
 let createEventCounter = 0;
+const authorPull = [];
+
 for (let i=0; i < githubData.length; i++) {
   let individualId = githubData[i];
   if (individualId.type == "PushEvent"){
@@ -4428,6 +4430,12 @@ for (let i=0; i < githubData.length; i++) {
   } else if (individualId.type == "PullRequestEvent"){
     totalEventCounter += 1;
     pullRequestCounter += 1;
+    console.log(totalEventCounter);
+    if (individualId.payload.action == "closed"){
+      if (individualId.payload.pull_request.merged_by.login == "stevebrownlee"){
+        authorPull.push(individualId.payload.pull_request.user.login);
+      };
+    };
     console.log("Pull Event");
   } else if (individualId.type == "DeleteEvent"){
     totalEventCounter += 1;
@@ -4447,6 +4455,11 @@ console.log("Total events from this file is: " + totalEventCounter);
 console.log("Total commits from this file is: " + commitCounter);
 console.log("Total push events from this file is: " + pushEventCounter);
 console.log("Total pull events from this file is: " + pullRequestCounter);
+console.log("The pull events from this file were done by " + authorPull.length + " authors.");
+for (let i = 0; i < authorPull.length; i++) {
+  let g = i + 1;
+  console.log(g + ". " + authorPull[i] + "." );
+};
 console.log("Total delete events from this file is: " + deleteEventCounter);
 console.log("Total comment events from this file is: " + commentEventCounter);
 console.log("Total create events from this file is: " + createEventCounter);
