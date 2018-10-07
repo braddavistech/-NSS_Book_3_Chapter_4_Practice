@@ -4411,13 +4411,42 @@ const githubData = [
 
 
 
+let totalEventCounter = 0;
 let commitCounter = 0;
-let totalCommits = 0;
+let pushEventCounter = 0;
+let pullRequestCounter = 0;
+let deleteEventCounter = 0;
+let commentEventCounter = 0;
+let createEventCounter = 0;
 for (let i=0; i < githubData.length; i++) {
   let individualId = githubData[i];
-  // console.log(++commitCounter);
-  if (individualId.payload.commits != null) {
-    totalCommits += individualId.payload.commits.length;
+  if (individualId.type == "PushEvent"){
+    totalEventCounter += 1;
+    pushEventCounter += 1;
+    console.log("Push Event");
+    commitCounter += individualId.payload.commits.length;
+  } else if (individualId.type == "PullRequestEvent"){
+    totalEventCounter += 1;
+    pullRequestCounter += 1;
+    console.log("Pull Event");
+  } else if (individualId.type == "DeleteEvent"){
+    totalEventCounter += 1;
+    deleteEventCounter += 1;
+    console.log("Delete Event");
+  } else if (individualId.type == "IssueCommentEvent"){
+    totalEventCounter += 1;
+    commentEventCounter += 1;
+    console.log("Comment Event");
+  } else if (individualId.type == "CreateEvent"){
+    totalEventCounter += 1;
+    createEventCounter += 1;
+    console.log("Create Event");
   };
 }
-console.log("Total commits from this file is: " + totalCommits);
+console.log("Total events from this file is: " + totalEventCounter);
+console.log("Total commits from this file is: " + commitCounter);
+console.log("Total push events from this file is: " + pushEventCounter);
+console.log("Total pull events from this file is: " + pullRequestCounter);
+console.log("Total delete events from this file is: " + deleteEventCounter);
+console.log("Total comment events from this file is: " + commentEventCounter);
+console.log("Total create events from this file is: " + createEventCounter);
