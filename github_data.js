@@ -1,3 +1,5 @@
+
+
 const githubData = [
   {
     "id": "8033299496",
@@ -4406,3 +4408,16 @@ const githubData = [
     }
   }
 ]
+
+
+
+let commitCounter = 0;
+let totalCommits = 0;
+for (let i=0; i < githubData.length; i++) {
+  let individualId = githubData[i];
+  // console.log(++commitCounter);
+  if (individualId.payload.commits != null) {
+    totalCommits += individualId.payload.commits.length;
+  };
+}
+console.log("Total commits from this file is: " + totalCommits);
