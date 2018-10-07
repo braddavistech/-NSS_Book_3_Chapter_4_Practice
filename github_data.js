@@ -4419,47 +4419,110 @@ let deleteEventCounter = 0;
 let commentEventCounter = 0;
 let createEventCounter = 0;
 const authorPull = [];
+let steveInvolvedTrackerName = [];
+let steveInvolvedTrackerCount = [];
+let currentCommitLeaderValue = 0;
+let currentCommitLeaderName = "";
+let currentCommitRepoIdLead = "";
 
 for (let i=0; i < githubData.length; i++) {
   let individualId = githubData[i];
+  let internalEventCounter = 0;
+  let steveInvolved = false;
+  
   if (individualId.type == "PushEvent"){
     totalEventCounter += 1;
     pushEventCounter += 1;
-    console.log("Push Event");
     commitCounter += individualId.payload.commits.length;
+    if (individualId.payload.commits.length > currentCommitLeaderValue){
+      currentCommitLeaderValue = individualId.payload.commits.length;
+      currentCommitLeaderName = individualId.repo.name;
+      currentCommitRepoIdLead = individualId.id;
+    }
+    for (let i = 0; i < individualId.payload.commits.length; i++) {
+      internalEventCounter += 1;
+      if (individualId.payload.commits[i].author.name == "Steve Brownlee"){
+        steveInvolved = true;
+      };
+    };
+    
   } else if (individualId.type == "PullRequestEvent"){
     totalEventCounter += 1;
     pullRequestCounter += 1;
-    console.log(totalEventCounter);
     if (individualId.payload.action == "closed"){
       if (individualId.payload.pull_request.merged_by.login == "stevebrownlee"){
+        internalEventCounter = 1;
+        steveInvolved = true;
         authorPull.push(individualId.payload.pull_request.user.login);
       };
     };
-    console.log("Pull Event");
   } else if (individualId.type == "DeleteEvent"){
     totalEventCounter += 1;
     deleteEventCounter += 1;
-    console.log("Delete Event");
+    if (individualId.actor.login == "stevebrownlee"){
+      internalEventCounter = 1;
+      steveInvolved = true;
+    };
   } else if (individualId.type == "IssueCommentEvent"){
     totalEventCounter += 1;
     commentEventCounter += 1;
-    console.log("Comment Event");
+    if (individualId.actor.login == "stevebrownlee"){
+      internalEventCounter = 1;
+      steveInvolved = true;
+    };
   } else if (individualId.type == "CreateEvent"){
     totalEventCounter += 1;
     createEventCounter += 1;
-    console.log("Create Event");
+    if (individualId.actor.login == "stevebrownlee"){
+      internalEventCounter = 1;
+      steveInvolved = true;
+    };
+  };
+  if (steveInvolved == true) {
+    steveInvolvedTrackerName.push(individualId.repo.name);
+    steveInvolvedTrackerCount.push(internalEventCounter);
   };
 }
 console.log("Total events from this file is: " + totalEventCounter);
 console.log("Total commits from this file is: " + commitCounter);
 console.log("Total push events from this file is: " + pushEventCounter);
 console.log("Total pull events from this file is: " + pullRequestCounter);
+console.log("Total delete events from this file is: " + deleteEventCounter);
+console.log("Total comment events from this file is: " + commentEventCounter);
+console.log("Total create events from this file is: " + createEventCounter);
 console.log("The pull events from this file were done by " + authorPull.length + " authors.");
 for (let i = 0; i < authorPull.length; i++) {
   let g = i + 1;
   console.log(g + ". " + authorPull[i] + "." );
 };
-console.log("Total delete events from this file is: " + deleteEventCounter);
-console.log("Total comment events from this file is: " + commentEventCounter);
-console.log("Total create events from this file is: " + createEventCounter);
+console.log("Steve was involved in the following repository events.")
+
+const totalsForEvents = [];
+const steveEventTotals = {name: steveInvolvedTrackerName[0], count: steveInvolvedTrackerCount[0]};
+totalsForEvents.push(steveEventTotals);
+
+
+for (let i = 0; i < steveInvolvedTrackerName.length; i++){
+  let alreadyIn = false;
+  // console.log("outer loop");
+  for (let q = 0; q < totalsForEvents.length; q++) {
+    // console.log(steveInvolvedTrackerName[i] + "  =  " + totalsForEvents[q].name);
+    if (steveInvolvedTrackerName[i] == totalsForEvents[q].name) {
+      totalsForEvents[q].count += steveInvolvedTrackerCount[i];
+      // console.log(totalsForEvents[q].name + ": " + totalsForEvents[q].count);
+      alreadyIn = true;
+    };
+    // console.log(alreadyIn);
+  };
+
+  if (alreadyIn == false){
+      let tempObjects = {name: steveInvolvedTrackerName[i], count: steveInvolvedTrackerCount[i]};
+      totalsForEvents.push(tempObjects);
+  };
+};
+
+for (let i = 0; i < totalsForEvents.length; i++){
+  console.log("* " + totalsForEvents[i].name + " had " + totalsForEvents[i].count + " events associated with it.");
+};
+
+console.log("The event with the most commits was an event in " + currentCommitLeaderName + " repository with the event id of " + currentCommitRepoIdLead + ". It had " + currentCommitLeaderValue + " commits.");
