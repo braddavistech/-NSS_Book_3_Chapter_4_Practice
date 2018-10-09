@@ -4424,6 +4424,9 @@ let steveInvolvedTrackerCount = [];
 let currentCommitLeaderValue = 0;
 let currentCommitLeaderName = "";
 let currentCommitRepoIdLead = "";
+let languageCounter = [];
+let languageEvent = [];
+const itemLanguage = {name : "", counter : 0};
 
 for (let i=0; i < githubData.length; i++) {
   let individualId = githubData[i];
@@ -4449,6 +4452,20 @@ for (let i=0; i < githubData.length; i++) {
   } else if (individualId.type == "PullRequestEvent"){
     totalEventCounter += 1;
     pullRequestCounter += 1;
+    if (individualId.payload.pull_request.head.repo.language != null){
+      // console.log(individualId.payload.pull_request.head.repo.language);
+      languageEvent.push(individualId.payload.pull_request.head.repo.language);
+      languageCounter.push(1);
+      // console.log(languageEvent);
+      // console.log(languageCounter);
+    }
+    if (individualId.payload.pull_request.base.repo.language != null ){
+      // console.log(individualId.payload.pull_request.head.repo.language);
+      languageEvent.push(individualId.payload.pull_request.head.repo.language);
+      languageCounter.push(1);
+      // console.log(languageEvent);
+      // console.log(languageCounter);
+    }
     if (individualId.payload.action == "closed"){
       if (individualId.payload.pull_request.merged_by.login == "stevebrownlee"){
         internalEventCounter = 1;
@@ -4483,6 +4500,34 @@ for (let i=0; i < githubData.length; i++) {
     steveInvolvedTrackerCount.push(internalEventCounter);
   };
 }
+
+
+// console.log(languageEvent);
+// console.log(languageCounter);
+const totalLanguage = [];
+const totalPlaceholder = {name: languageEvent[0], count: languageCounter[0]};
+totalLanguage.push(totalPlaceholder);
+
+for (let i = 0; i < languageEvent.length; i++){
+  let alreadyIn = false;
+  // console.log("outer loop");
+  for (let q = 0; q < totalLanguage.length; q++) {
+    // console.log(steveInvolvedTrackerName[i] + "  =  " + totalsForEvents[q].name);
+    if (languageEvent[i] == totalLanguage[q].name) {
+      totalLanguage[q].count += 1;
+      // console.log(totalsForEvents[q].name + ": " + totalsForEvents[q].count);
+      alreadyIn = true;
+    };
+    // console.log(alreadyIn);
+  };
+
+  if (alreadyIn == false){
+      let tempObjects = {name: languageEvent[i], count: 1};
+      totalLanguage.push(tempObjects);
+  };
+};
+
+
 console.log("Total events from this file is: " + totalEventCounter);
 console.log("Total commits from this file is: " + commitCounter);
 console.log("Total push events from this file is: " + pushEventCounter);
@@ -4526,3 +4571,16 @@ for (let i = 0; i < totalsForEvents.length; i++){
 };
 
 console.log("The event with the most commits was an event in " + currentCommitLeaderName + " repository with the event id of " + currentCommitRepoIdLead + ". It had " + currentCommitLeaderValue + " commits.");
+console.log("Steve's events involved the following languages:");
+for (let i = 0; i < totalLanguage.length; i++){
+  let x = i + 1;
+  console.log(x + ". " + totalLanguage[i].name);
+};
+const maxLanguage = {name: "", count: 0};
+for (let i = 0; i < totalLanguage.length; i++){
+  if (totalLanguage[i].count > maxLanguage.count){
+    maxLanguage.name = totalLanguage[i].name;
+    maxLanguage.count = totalLanguage[i].count;
+  };
+};
+console.log(maxLanguage.name + " had the most changes with a total of " + maxLanguage.count + ".");
